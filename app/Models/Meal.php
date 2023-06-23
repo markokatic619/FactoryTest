@@ -1,35 +1,41 @@
 <?php
 
-namespace App\Models\Models;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\App;
 
 class Meal extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'meals';
     protected $primaryKey = 'id';
+    protected $dates = ['deleted_at'];
+    protected $fillable = ['categoryId'];
+    public $timestamps = true;
 
-    protected $fillable = [
-        'title',
-        'description',
-        'categoryId',
-    ];
+    
 
-    public function category()
+    public function translations()
     {
-        return $this->belongsTo(Category::class, 'categoryId');
+        $currentLocale = App::getLocale();
+        return $this->hasOne(MealTranslation::class, 'mealId')->where('locale', $currentLocale);
     }
 
-    public function tags()
+        public function category()
+        {
+            return $this->belongsTo(Category::class, 'categoryId','id');
+        }
+
+    public function ingredients()
     {
-        return $this->hasMany(Tag::class, 'mealId');
+        return $this->hasMany(IngredientList::class, 'mealId','id');
     }
 
-    public function ingredientList()
-    {
-        return $this->hasMany(IngredientList::class, 'mealId');
+    public function tags(){
+        return $this->hasMany(Tag::class, 'mealId','id');
     }
 }

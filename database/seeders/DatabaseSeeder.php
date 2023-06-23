@@ -11,12 +11,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            LanguagesData::class,
             IngredientsData::class,
             CategoryData::class,
             MealsData::class,
             IngredientsListData::class,
-            TagsData::class,
-            LanguagesData::class
+            TagsData::class
         ]);
     }
 }

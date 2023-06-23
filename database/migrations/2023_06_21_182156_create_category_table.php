@@ -10,13 +10,20 @@ return new class extends Migration
     {
         Schema::create('category', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('title');
             $table->string('slug')->unique();
+        });
+        Schema::create('category_translations', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('title');
+            $table->string('locale');
+            $table->unsignedBigInteger('categoryId');
+            $table->foreign('categoryId')->references('id')->on('category')->onDelete('cascade');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('category');
+        Schema::dropIfExists('category_translations');
+        Schema::dropIfExists('category');  
     }
 };

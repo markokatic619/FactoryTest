@@ -10,12 +10,19 @@ return new class extends Migration
     {
         Schema::create('ingredients', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('title');
             $table->string('slug')->unique();
+        });
+        Schema::create('ingredients_translations', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('ingredientId');
+            $table->string('title');
+            $table->string('locale');
+            $table->foreign('ingredientId')->references('id')->on('ingredients')->onDelete('cascade');
         });
     }
     public function down(): void
     {
+        Schema::dropIfExists('ingredients_translations');
         Schema::dropIfExists('ingredients');
     }
 };

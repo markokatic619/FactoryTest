@@ -11,13 +11,20 @@ return new class extends Migration
         Schema::create('tags', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('mealId');
-            $table->string('title');
             $table->string('slug');
             $table->foreign('mealId')->references('id')->on('meals');
+        });
+        Schema::create('tags_translations', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('tagId');
+            $table->string('title');
+            $table->string('locale');
+            $table->foreign('tagId')->references('id')->on('tags')->onDelete('cascade');
         });
     }
     public function down(): void
     {
+        Schema::dropIfExists('tags_translations');
         Schema::dropIfExists('tags');
     }
 };

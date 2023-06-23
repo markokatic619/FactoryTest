@@ -10,17 +10,24 @@ return new class extends Migration
     {
         Schema::create('meals', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('title');
-            $table->string('description');
             $table->unsignedBigInteger('categoryId')->nullable();
-            $table->foreign('categoryId')->references('id')->on('category');
+            $table->foreign('categoryId')->references('id')->on('category')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
+        });
+        Schema::create('meals_translations', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('title');
+            $table->string('description');
+            $table->string('locale');
+            $table->unsignedBigInteger('mealId');
+            $table->foreign('mealId')->references('id')->on('meals')->onDelete('cascade');
         });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('meals_translataions');
         Schema::dropIfExists('meals');
     }
 };

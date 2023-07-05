@@ -7,12 +7,13 @@ use App\Models\Meal;
 use App\Models\Language;
 use Astrotomic\Translatable\Locales;
 use Illuminate\Support\Facades\App;
-
+use App\Models\TagList;
+use Illuminate\Support\Facades\DB;
 class MealsService
 {
     private $perPage, $page, $category, $tags, $withData, $lang, $totalItems, $totalPages, $diffTime;
 
-    public function getMeals(Request $request)
+    public function getMeals(array $request)
     {
         $this->prepareRequest($request);
         $this->validateLanguage();
@@ -50,15 +51,15 @@ class MealsService
         return $allData;
     }
 
-    private function prepareRequest(Request $request)
+    private function prepareRequest(array $requestData)
     {
-        $this->perPage = $request->input('per_page');
-        $this->page = intval($request->input('page'));
-        $this->category = $request->input('category');
-        $this->tags = $request->input('tags');
-        $this->withData = explode(',', $request->input('with'));
-        $this->lang = $request->input('lang');
-        $this->diffTime = $request->input('diff_time');
+        $this->perPage = $requestData['per_page'] ?? null;
+        $this->page = intval($requestData['page'] ?? 1);
+        $this->category = $requestData['category'] ?? null;
+        $this->tags = $requestData['tags'] ?? null;
+        $this->withData = explode(',', $requestData['with'] ?? '');
+        $this->lang = $requestData['lang'] ?? null;
+        $this->diffTime = $requestData['diff_time'] ?? null;
     }
 
     private function validateLanguage()
@@ -74,26 +75,33 @@ class MealsService
 
     private function applyFilters($query)
     {
+        $query->with('translations');
+
+        if (in_array('category', $this->withData)){$query->with("category.translations");}
+        if (in_array('tags', $this->withData)){$query->with("tagsList.tag.translations");}
+        if (in_array('ingredients', $this->withData)){$query->with("ingredients.ingredient.translations");}
+
         if ($this->category == "null" || $this->category == "!null") {
             if ($this->category == "null") {
-                $query->orWhereDoesntHave('category');
+                $query->whereDoesntHave('category');
             } else {
-                $query->orWhereHas('category');
+                $query->whereHas('category');
             }
         } else if ($this->category !== null) {
-            $query->orWhereHas('category', function ($query) {
+            $query->whereHas('category', function ($query) {
                 $query->where('id', $this->category);
             });
         }
 
         if ($this->tags !== null) {
-            $query->orWhereHas('tags', function ($query) {
-                $query->where('id', $this->tags);
+            $tags = explode(',', $this->tags);
+            $query->whereHas('tagsList', function ($query) use ($tags) {
+                $query->whereIn('tagId', $tags);
             });
         }
 
-        if($this->diffTime == null) {
-            $query->whereNull('deleted_at');
+        if($this->diffTime != null) {
+            $query->history()->withTrashed();
         }
         
         return $query;
@@ -177,13 +185,13 @@ class MealsService
         }
 
         if (in_array('tags', $this->withData)) {
-            $tags = $meal->tags;
+            $tags = $meal->tagsList;
 
             foreach ($tags as $tag) {
                 $data['tags'][] = [
-                    'id' => $tag->id,
-                    'title' => $tag->translations->title,
-                    'slug' => $tag->slug
+                    'id' => $tag->tag->id,
+                    'title' => $tag->tag->translations->title,
+                    'slug' => $tag->tag->slug
                 ];
             }
         }

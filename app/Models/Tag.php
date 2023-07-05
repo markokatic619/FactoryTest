@@ -19,10 +19,4 @@ class Tag extends Model
         $currentLocale = App::getLocale();
         return $this->hasOne(TagTranslation::class, 'tagId')->where('locale', $currentLocale);
     }
-
-    public function meal()
-    {
-        $currentLocale = App::getLocale();
-        return $this->belongsTo(Meal::class, 'mealId')->where('locale', $currentLocale);
-    }
 }

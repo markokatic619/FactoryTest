@@ -10,9 +10,7 @@ return new class extends Migration
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('mealId');
             $table->string('slug');
-            $table->foreign('mealId')->references('id')->on('meals');
         });
         Schema::create('tags_translations', function (Blueprint $table) {
             $table->bigIncrements('id');

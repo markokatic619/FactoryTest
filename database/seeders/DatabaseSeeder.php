@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
             CategoryData::class,
             MealsData::class,
             IngredientsListData::class,
-            TagsData::class
+            TagsData::class,
+            TagsListData::class
         ]);
     }
 }

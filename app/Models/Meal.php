@@ -35,7 +35,7 @@ class Meal extends Model
         return $this->hasMany(IngredientList::class, 'mealId','id');
     }
 
-    public function tags(){
-        return $this->hasMany(Tag::class, 'mealId','id');
+    public function tagsList(){
+        return $this->hasMany(TagsList::class, 'mealId','id');
     }
 }

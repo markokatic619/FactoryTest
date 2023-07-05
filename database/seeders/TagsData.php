@@ -19,7 +19,6 @@ class TagsData extends Seeder
         for($i = 0; $i<15; $i++ )
         {
             $tag = Tag::create([
-                'mealId'=>$faker->numberBetween($min = 1, $max = 7),
                 'slug'=>$faker->slug()
             ]);
             foreach ($locales as $locale) {
